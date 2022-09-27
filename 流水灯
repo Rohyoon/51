@@ -1,0 +1,79 @@
+#include<reg52.h>
+//C语言实现点亮一个LED
+
+
+//sbit P26 = P2^6;
+//int main()
+//{
+//	while(1)
+//	{
+//		P26 = 0;
+//	}
+//	return 0;
+//}
+
+//位语言实现点亮一个LED
+//#define uchar unsigned char
+
+//int main()
+//{
+//	uchar temp = 0x7f;	//1111 1110：  0xfe
+//	while(1)
+//	{
+//		P2 = temp;
+//	}
+//	return 0;
+//}
+
+//流水灯
+
+#define uchar unsigned char
+	
+sbit K1 = P3^1;
+bit flag = 0;
+
+void delayms(uchar ms)      //延时函数
+{
+	uchar i;
+	while(ms--)
+		for(i=0;i<240;i++);
+}
+
+void key(void)            //按键改变流水灯方向
+{
+	static bit kp = 0;      //多次按键无效
+	if(K1==0)
+	{  
+		delayms(10);        //按键消抖
+		if((K1==0)&&(kp==0))
+		{
+			kp = 1;
+			flag = ~flag;       //取反
+		}
+	}
+	kp=0;
+}
+
+
+
+void main(void)
+{
+	P2 = 0xfe;             //最低位LED灯
+	while(1)
+	{
+		key();
+	if(flag==0)
+	{
+	 P2 = (P2<<1 | P2>>7);       //P2<<1：向左移动一位 1111 1100
+		                           //P2>>7：向右移动七位 0000 0001
+			delayms(100);
+	}
+	else
+	{
+		 P2 = (P2>>1 | P2<<7);       //P2>>1：向右移动一位 1111 1100
+		                           //P2<<7：向左移动七位 0000 0001
+			delayms(100);
+		
+	}
+}
+}
